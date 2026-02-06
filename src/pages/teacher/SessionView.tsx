@@ -6,6 +6,7 @@ import type { Session, Question, QuestionWithOptions } from '../../types/databas
 import { Button } from '../../components/ui/button';
 import { Card, CardContent,CardHeader, CardTitle } from '../../components/ui/card';
 import { Skeleton } from '../../components/ui/skeleton';
+import CreateQuestionModal from '../../components/teacher/CreateQuestionModal';
 import MCQResults from '../../components/teacher/MCQResults';
 import EssayResults from '../../components/teacher/EssayResults';
 import QRCode from 'react-qr-code';
