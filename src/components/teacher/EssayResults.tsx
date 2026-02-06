@@ -22,9 +22,13 @@ export default function EssayResults({ question }: EssayResultsProps) {
   useEffect(() => {
     loadAnswers();
 
-    // Subscribe to realtime answer changes
+    loadAnswers();
+
+    // Unique channel ID to prevent collision between Dashboard view and Projector view
+    const channelId = `essay-answers-${question.id}-${Math.random().toString(36).substr(2, 9)}`;
+
     const subscription = supabase
-      .channel(`essay-answers-${question.id}`)
+      .channel(channelId)
       .on(
         'postgres_changes',
         {
@@ -34,28 +38,30 @@ export default function EssayResults({ question }: EssayResultsProps) {
           filter: `question_id=eq.${question.id}`,
         },
         (payload) => {
-          const newAnswer = payload.new as Answer;
-          
-          setTotalAnswers(prev => prev + 1);
-
-          setAnswers(prev => {
-            // 1. Add new answer to the list
-            // 2. Mark this student's previous answers as not latest
-            const updatedAnswers = [
-              { ...newAnswer, isLatest: true },
-              ...prev.map(a => 
-                a.student_id === newAnswer.student_id ? { ...a, isLatest: false } : a
-              )
-            ];
-
-            // 3. Sort: Latest answers first, then by date
-            return updatedAnswers.sort((a, b) => {
-               if (a.isLatest && !b.isLatest) return -1;
-               if (!a.isLatest && b.isLatest) return 1;
-               return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-            });
-          });
+           handleNewAnswer(payload.new as Answer);
         }
+      )
+      .on(
+         'broadcast',
+         { event: 'new-answer' },
+         (payload) => {
+             if (payload.payload.question_id === question.id) {
+                 console.log('⚡ Received BROADCAST essay');
+                 // Create a compatible Answer object from the payload
+                 // Note: payload.payload does not have the full DB record structure (like id),
+                 // but we can mock enough for display
+                 const broadcastAnswer = {
+                     id: `broadcast-${Date.now()}`, // Temporary ID
+                     question_id: question.id,
+                     student_id: payload.payload.student_id,
+                     text: payload.payload.text,
+                     created_at: payload.payload.created_at || new Date().toISOString(),
+                     option_id: null
+                 } as Answer;
+                 
+                 handleNewAnswer(broadcastAnswer);
+             }
+         }
       )
       .subscribe();
 
@@ -63,6 +69,28 @@ export default function EssayResults({ question }: EssayResultsProps) {
       subscription.unsubscribe();
     };
   }, [question.id]);
+
+  const handleNewAnswer = (newAnswer: Answer) => {
+      setTotalAnswers(prev => prev + 1);
+
+      setAnswers(prev => {
+        // 1. Add new answer to the list
+        // 2. Mark this student's previous answers as not latest
+        const updatedAnswers = [
+          { ...newAnswer, isLatest: true },
+          ...prev.map(a => 
+            a.student_id === newAnswer.student_id ? { ...a, isLatest: false } : a
+          )
+        ];
+
+        // 3. Sort: Latest answers first, then by date
+        return updatedAnswers.sort((a, b) => {
+           if (a.isLatest && !b.isLatest) return -1;
+           if (!a.isLatest && b.isLatest) return 1;
+           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+      });
+  };
 
   const loadAnswers = async () => {
     try {

@@ -33,9 +33,12 @@ export default function MCQResults({ question }: MCQResultsProps) {
   useEffect(() => {
     loadAnswers();
 
-    // Subscribe to realtime answer changes
+    // Unique channel for this component instance to avoid conflicts
+    // between Normal View and Projector Mode instances
+    const channelId = `mcq-answers-${question.id}-${Math.random().toString(36).substr(2, 9)}`;
+
     const subscription = supabase
-      .channel(`mcq-answers-${question.id}`)
+      .channel(channelId)
       .on(
         'postgres_changes',
         {
@@ -45,29 +48,48 @@ export default function MCQResults({ question }: MCQResultsProps) {
           filter: `question_id=eq.${question.id}`,
         },
         (payload) => {
-          const newAnswer = payload.new as any; // Using any to avoid type strictness issues with generated types if needed
-
-          // Optimistically update state to avoid cache issues
-          setTotalAnswers((prev) => {
-             const newTotal = prev + 1;
+          handleNewAnswer(payload.new);
+        }
+      )
+      .on(
+        'broadcast',
+        { event: 'new-answer' },
+        (payload) => {
+           // Verify it's for this question (though channel is unique enough usually, but harmless to check)
+           if (payload.payload.question_id === question.id) {
+               console.log('⚡ Received BROADCAST answer');
+               
+               // If we received a broadcast, we can use the payload options directly
+               // The broadcast payload has { options: string[], ... }
+               // We need to construct a partial answer object or just handle the increment logic
+               // Let's use the helper logic
+               const newOptionIds = payload.payload.options as string[];
+               
+               setTotalAnswers((prev) => prev + 1);
              
-             // Update option counts and percentages
-             setOptionCounts((prevCounts) => {
-                return prevCounts.map(opt => {
-                   let newCount = opt.count;
-                   if (opt.id === newAnswer.option_id) {
-                      newCount++;
-                   }
-                   return {
-                      ...opt,
-                      count: newCount,
-                      percentage: Math.round((newCount / newTotal) * 100)
-                   };
-                });
-             });
-
-             return newTotal;
-          });
+               setOptionCounts((prevCounts) => {
+                  return prevCounts.map(opt => {
+                     let newCount = opt.count;
+                     if (newOptionIds.includes(opt.id)) {
+                        newCount++;
+                     }
+                     return {
+                        ...opt,
+                        count: newCount,
+                        percentage: 0 // Will be recalculated in a simpler way if needed, or by the state update logic
+                     };
+                  });
+               });
+               
+               // Re-calculate percentages cleanly
+               setOptionCounts(prev => {
+                  const total = prev.reduce((sum, item) => sum + item.count, 0);
+                  return prev.map(p => ({
+                     ...p,
+                     percentage: total > 0 ? Math.round((p.count / total) * 100) : 0
+                  }));
+               });
+           }
         }
       )
       .subscribe();
@@ -76,6 +98,29 @@ export default function MCQResults({ question }: MCQResultsProps) {
       subscription.unsubscribe();
     };
   }, [question.id]);
+
+  const handleNewAnswer = (newAnswer: any) => {
+      // Optimistically update state to avoid cache issues
+      setTotalAnswers((prev) => {
+         const newTotal = prev + 1;
+         
+         setOptionCounts((prevCounts) => {
+            return prevCounts.map(opt => {
+               let newCount = opt.count;
+               if (opt.id === newAnswer.option_id) {
+                  newCount++;
+               }
+               return {
+                  ...opt,
+                  count: newCount,
+                  percentage: Math.round((newCount / newTotal) * 100)
+               };
+            });
+         });
+
+         return newTotal;
+      });
+  };
 
   const loadAnswers = async () => {
     try {
