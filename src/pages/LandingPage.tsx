@@ -20,7 +20,7 @@ export default function LandingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="text-5xl md:text-7xl font-bold projector-text mb-4 text-white drop-shadow-lg">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold projector-text mb-4 text-white drop-shadow-lg">
             منصة التفاعل التعليمي
           </h1>
           <p className="text-xl text-white/80">اختر نوع الحساب للمتابعة</p>

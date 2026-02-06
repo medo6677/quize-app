@@ -166,44 +166,47 @@ export default function SessionViewPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex justify-between items-center"
+          className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-0"
         >
-          <div className="flex items-center gap-4">
-            <Button onClick={() => navigate('/teacher/dashboard')} variant="outline" size="icon">
+          <div className="flex items-center gap-4 w-full lg:w-auto">
+            <Button onClick={() => navigate('/teacher/dashboard')} variant="outline" size="icon" className="shrink-0">
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div>
-              <div className="flex items-center gap-4">
-                <h1 className="text-4xl font-bold projector-text">الجلسة: {session.code}</h1>
-                <div className="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold projector-text truncate">الجلسة: {session.code}</h1>
+                <div className="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full flex items-center gap-2 shrink-0">
                   <span className="relative flex h-3 w-3">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                   </span>
                   <Users className="h-4 w-4 text-green-600" />
                   <span className="font-bold text-green-700 text-sm">
-                    {onlineCount} متصل
+                    {onlineCount} <span className="hidden sm:inline">متصل</span>
                   </span>
                 </div>
               </div>
-              <p className="text-muted-foreground mt-1 text-lg">
-                يمكن للطلاب الانضمام عبر /join باستخدام الرمز: <span className="font-mono font-bold text-primary text-xl mx-2">{session.code}</span>
+              <p className="text-muted-foreground mt-1 text-sm sm:text-lg truncate">
+                انضمام: <span className="font-mono font-bold text-primary text-base sm:text-xl mx-2 ">{session.code}</span> /join
               </p>
             </div>
           </div>
           
-          <div className="flex gap-4">
-            <Button onClick={() => setShowProjectorMode(true)} variant="outline" size="lg" className="text-lg">
+          <div className="flex flex-wrap gap-2 w-full lg:w-auto justify-end">
+            <Button onClick={() => setShowProjectorMode(true)} variant="outline" size="lg" className="text-base sm:text-lg flex-1 sm:flex-none">
               <Maximize2 className="ml-2 h-5 w-5" />
-              عرض العرض
+              <span className="hidden sm:inline">عرض العرض</span>
+              <span className="inline sm:hidden">عرض</span>
             </Button>
-            <Button onClick={() => setShowQRModal(true)} variant="outline" size="lg" className="text-lg">
+            <Button onClick={() => setShowQRModal(true)} variant="outline" size="lg" className="text-base sm:text-lg flex-1 sm:flex-none">
               <QrCode className="ml-2 h-5 w-5" />
-              عرض الباركود
+              <span className="hidden sm:inline">عرض الباركود</span>
+              <span className="inline sm:hidden">باركود</span>
             </Button>
-            <Button onClick={() => setShowCreateModal(true)} size="lg" className="text-lg">
+            <Button onClick={() => setShowCreateModal(true)} size="lg" className="text-base sm:text-lg flex-1 sm:flex-none">
               <Plus className="ml-2 h-5 w-5" />
-              إنشاء سؤال
+              <span className="hidden sm:inline">إنشاء سؤال</span>
+              <span className="inline sm:hidden">سؤال</span>
             </Button>
           </div>
         </motion.div>

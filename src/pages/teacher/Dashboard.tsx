@@ -123,13 +123,13 @@ export default function DashboardPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex justify-between items-center"
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0"
         >
           <div>
-            <h1 className="text-4xl font-bold projector-text">لوحة تحكم المعلم</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold projector-text">لوحة تحكم المعلم</h1>
             <p className="text-muted-foreground mt-2 font-mono" dir="ltr">{teacherEmail}</p>
           </div>
-          <Button onClick={handleSignOut} variant="outline">
+          <Button onClick={handleSignOut} variant="outline" className="w-full sm:w-auto">
             <LogOut className="ml-2 h-4 w-4" />
             تسجيل الخروج
           </Button>
