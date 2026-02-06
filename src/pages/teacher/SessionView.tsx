@@ -224,45 +224,47 @@ export default function SessionViewPage() {
               <EssayResults question={activeQuestion} />
             )}
             {/* Navigation Controls */}
-            <div className="mt-8 flex justify-between items-center gap-4">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => {
-                  const currentIndex = questions.findIndex(q => q.id === activeQuestion.id);
-                  if (currentIndex > 0) {
-                    activateQuestion(questions[currentIndex - 1].id);
-                  }
-                }}
-                disabled={questions.findIndex(q => q.id === activeQuestion.id) <= 0}
-                className="text-lg flex-1"
-              >
-                <ChevronRight className="ml-2 h-5 w-5" />
-                السابق
-              </Button>
+            <div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="flex w-full gap-4 sm:flex-1">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => {
+                    const currentIndex = questions.findIndex(q => q.id === activeQuestion.id);
+                    if (currentIndex > 0) {
+                      activateQuestion(questions[currentIndex - 1].id);
+                    }
+                  }}
+                  disabled={questions.findIndex(q => q.id === activeQuestion.id) <= 0}
+                  className="text-lg flex-1"
+                >
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                  السابق
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => {
+                    const currentIndex = questions.findIndex(q => q.id === activeQuestion.id);
+                    if (currentIndex < questions.length - 1) {
+                      activateQuestion(questions[currentIndex + 1].id);
+                    }
+                  }}
+                  disabled={questions.findIndex(q => q.id === activeQuestion.id) >= questions.length - 1}
+                  className="text-lg flex-1 sm:order-last"
+                >
+                  التالي
+                  <ChevronLeft className="mr-2 h-5 w-5" />
+                </Button>
+              </div>
 
               <Button
                 onClick={() => deactivateQuestion(activeQuestion.id)}
                 variant="destructive"
-                className="text-lg flex-1"
+                className="text-lg w-full sm:w-auto sm:flex-1"
               >
                 إلغاء تفعيل السؤال
-              </Button>
-
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => {
-                  const currentIndex = questions.findIndex(q => q.id === activeQuestion.id);
-                  if (currentIndex < questions.length - 1) {
-                    activateQuestion(questions[currentIndex + 1].id);
-                  }
-                }}
-                disabled={questions.findIndex(q => q.id === activeQuestion.id) >= questions.length - 1}
-                className="text-lg flex-1"
-              >
-                التالي
-                <ChevronLeft className="mr-2 h-5 w-5" />
               </Button>
             </div>
           </motion.div>
@@ -291,9 +293,9 @@ export default function SessionViewPage() {
                         : 'border-border bg-background'
                     }`}
                   >
-                    <div className="flex justify-between items-center">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                      <div className="flex-1 w-full">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
                           <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${
                             question.type === 'mcq'
                               ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
@@ -307,12 +309,13 @@ export default function SessionViewPage() {
                             </span>
                           )}
                         </div>
-                        <p className="font-medium text-lg">{question.text}</p>
+                        <p className="font-medium text-lg leading-relaxed">{question.text}</p>
                       </div>
                       {!question.is_active && (
                         <Button
                           onClick={() => activateQuestion(question.id)}
                           size="sm"
+                          className="w-full sm:w-auto"
                         >
                           <Play className="ml-2 h-4 w-4" />
                           تفعيل
