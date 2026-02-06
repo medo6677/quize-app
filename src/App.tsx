@@ -1,38 +1,50 @@
+import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Skeleton } from './components/ui/skeleton';
 
 // General Pages
-import LandingPage from './pages/LandingPage';
+const LandingPage = lazy(() => import('./pages/LandingPage'));
 
 // Student Pages
-import JoinPage from './pages/student/Join';
-import SessionPage from './pages/student/Session';
+const JoinPage = lazy(() => import('./pages/student/Join'));
+const SessionPage = lazy(() => import('./pages/student/Session'));
 
 // Teacher Pages
-import LoginPage from './pages/teacher/Login';
-import DashboardPage from './pages/teacher/Dashboard';
-import SessionViewPage from './pages/teacher/SessionView';
+const LoginPage = lazy(() => import('./pages/teacher/Login'));
+const DashboardPage = lazy(() => import('./pages/teacher/Dashboard'));
+const SessionViewPage = lazy(() => import('./pages/teacher/SessionView'));
+
+// Loading Fallback
+const PageLoader = () => (
+  <div className="min-h-screen p-8 space-y-8 flex flex-col items-center justify-center">
+    <Skeleton className="h-12 w-64" />
+    <Skeleton className="h-64 w-full max-w-2xl" />
+  </div>
+);
 
 export default function App() {
   return (
     <BrowserRouter>
       <div className="flex flex-col min-h-screen">
         <div className="flex-grow">
-          <Routes>
-            {/* Landing Page */}
-            <Route path="/" element={<LandingPage />} />
-            
-            {/* Student Routes */}
-            <Route path="/join" element={<JoinPage />} />
-            <Route path="/session/:code" element={<SessionPage />} />
-            
-            {/* Teacher Routes */}
-            <Route path="/teacher/login" element={<LoginPage />} />
-            <Route path="/teacher/dashboard" element={<DashboardPage />} />
-            <Route path="/teacher/session/:id" element={<SessionViewPage />} />
-            
-            {/* 404 */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Landing Page */}
+              <Route path="/" element={<LandingPage />} />
+              
+              {/* Student Routes */}
+              <Route path="/join" element={<JoinPage />} />
+              <Route path="/session/:code" element={<SessionPage />} />
+              
+              {/* Teacher Routes */}
+              <Route path="/teacher/login" element={<LoginPage />} />
+              <Route path="/teacher/dashboard" element={<DashboardPage />} />
+              <Route path="/teacher/session/:id" element={<SessionViewPage />} />
+              
+              {/* 404 */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
         </div>
         
         {/* Footer */}
