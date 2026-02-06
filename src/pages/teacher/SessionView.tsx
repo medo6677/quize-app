@@ -11,6 +11,7 @@ import MCQResults from '../../components/teacher/MCQResults';
 import EssayResults from '../../components/teacher/EssayResults';
 import QRCode from 'react-qr-code';
 import { ArrowLeft, Plus, Play, QrCode, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
+import RealtimeStatus from '../../components/ui/RealtimeStatus';
 
 export default function SessionViewPage() {
   const { id } = useParams<{ id: string }>();
@@ -407,6 +408,7 @@ export default function SessionViewPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      <RealtimeStatus />
     </div>
   );
 }
