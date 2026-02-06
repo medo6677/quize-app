@@ -10,8 +10,9 @@ import CreateQuestionModal from '../../components/teacher/CreateQuestionModal';
 import MCQResults from '../../components/teacher/MCQResults';
 import EssayResults from '../../components/teacher/EssayResults';
 import QRCode from 'react-qr-code';
-import { ArrowLeft, Plus, Play, QrCode, ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
+import { ArrowLeft, Plus, Play, QrCode, ChevronLeft, ChevronRight, Maximize2, Minimize2, Users } from 'lucide-react';
 import RealtimeStatus from '../../components/ui/RealtimeStatus';
+import { useSessionPresence } from '../../hooks/useSessionPresence';
 
 export default function SessionViewPage() {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +24,9 @@ export default function SessionViewPage() {
   const [showQRModal, setShowQRModal] = useState(false);
   const [showProjectorMode, setShowProjectorMode] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // Track presence (Teacher doesn't track self as student, but listens)
+  const { onlineCount } = useSessionPresence(session?.code);
 
   useEffect(() => {
     if (!id) return;
@@ -169,7 +173,19 @@ export default function SessionViewPage() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-4xl font-bold projector-text">الجلسة: {session.code}</h1>
+              <div className="flex items-center gap-4">
+                <h1 className="text-4xl font-bold projector-text">الجلسة: {session.code}</h1>
+                <div className="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full flex items-center gap-2">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                  </span>
+                  <Users className="h-4 w-4 text-green-600" />
+                  <span className="font-bold text-green-700 text-sm">
+                    {onlineCount} متصل
+                  </span>
+                </div>
+              </div>
               <p className="text-muted-foreground mt-1 text-lg">
                 يمكن للطلاب الانضمام عبر /join باستخدام الرمز: <span className="font-mono font-bold text-primary text-xl mx-2">{session.code}</span>
               </p>

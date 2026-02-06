@@ -9,6 +9,7 @@ import EssayQuestion from '../../components/student/EssayQuestion';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Card, CardContent } from '../../components/ui/card';
 import { AlertCircle } from 'lucide-react';
+import { useSessionPresence } from '../../hooks/useSessionPresence';
 
 export default function SessionPage() {
   const { code } = useParams<{ code: string }>();
@@ -17,6 +18,9 @@ export default function SessionPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const studentId = getStudentId();
+
+  // Track presence
+  useSessionPresence(code, { studentId, role: 'student' });
 
   useEffect(() => {
     if (!code) {

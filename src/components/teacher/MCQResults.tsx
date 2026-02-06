@@ -4,7 +4,8 @@ import { supabase } from '../../lib/supabase';
 import type { QuestionWithOptions } from '../../types/database.types';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import AnimatedCounter from './AnimatedCounter';
-import { Users } from 'lucide-react';
+import { Users, BarChart3, Grid } from 'lucide-react';
+import { Button } from '../ui/button';
 
 interface MCQResultsProps {
   question: QuestionWithOptions;
@@ -29,6 +30,7 @@ const BAR_COLORS = [
 export default function MCQResults({ question }: MCQResultsProps) {
   const [optionCounts, setOptionCounts] = useState<OptionCount[]>([]);
   const [totalAnswers, setTotalAnswers] = useState(0);
+  const [viewMode, setViewMode] = useState<'bar' | 'heatmap'>('bar');
 
   useEffect(() => {
     loadAnswers();
@@ -152,60 +154,136 @@ export default function MCQResults({ question }: MCQResultsProps) {
   };
 
   return (
-    <Card className="glass-effect projector-shadow">
-      <CardHeader>
-        <CardTitle className="text-3xl font-bold projector-text flex items-center gap-3">
-          <Users className="h-8 w-8" />
-          {question.text}
-        </CardTitle>
-        <div className="flex items-center gap-2 mt-4">
-          <span className="text-sm text-muted-foreground">إجمالي الإجابات:</span>
-          <AnimatedCounter value={totalAnswers} className="text-2xl font-bold text-primary" />
+    <Card className="glass-effect projector-shadow overflow-hidden">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <div className="space-y-1">
+            <CardTitle className="text-3xl font-bold projector-text flex items-center gap-3">
+            <Users className="h-8 w-8" />
+            {question.text}
+            </CardTitle>
+            <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">إجمالي الإجابات:</span>
+            <AnimatedCounter value={totalAnswers} className="text-2xl font-bold text-primary" />
+            </div>
+        </div>
+        
+        <div className="flex items-center gap-1 bg-secondary/50 p-1 rounded-lg">
+            <Button
+                variant={viewMode === 'bar' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('bar')}
+                className="gap-2"
+            >
+                <BarChart3 className="h-4 w-4" />
+                أعمدة
+            </Button>
+            <Button
+                variant={viewMode === 'heatmap' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('heatmap')}
+                className="gap-2"
+            >
+                <Grid className="h-4 w-4" />
+                خريطة حرارية
+            </Button>
         </div>
       </CardHeader>
-      <CardContent>
-        {/* Simple Bar Display */}
-        <div className="space-y-6">
-          <AnimatePresence>
-            {optionCounts.map((option, index) => (
-              <motion.div
-                key={option.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="space-y-2"
-              >
-                {/* Option Label */}
-                <div className="flex justify-between items-center">
-                  <p className="font-semibold text-lg projector-text">{option.text}</p>
-                  <span className="text-sm text-muted-foreground">{option.percentage}%</span>
-                </div>
-
-                {/* Bar with Count */}
-                <div className="relative">
-                  {/* Background track */}
-                  <div className="w-full h-16 bg-secondary/50 rounded-lg overflow-hidden border border-white/5">
-                    {/* Animated bar */}
+      <CardContent className="pt-6">
+        <AnimatePresence mode="wait">
+            {viewMode === 'bar' ? (
+                /* Simple Bar Display */
+                <motion.div
+                    key="bar-view"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="space-y-6"
+                >
+                {optionCounts.map((option, index) => (
                     <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${option.percentage}%` }}
-                      transition={{ duration: 0.8, ease: 'easeOut' }}
-                      className={`h-full ${BAR_COLORS[index % BAR_COLORS.length]} flex items-center justify-center relative shadow-lg`}
+                    key={option.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="space-y-2"
                     >
-                      {/* Count displayed on bar */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <AnimatedCounter
-                          value={option.count}
-                          className="text-2xl font-bold text-white drop-shadow-md"
+                    {/* Option Label */}
+                    <div className="flex justify-between items-center">
+                        <p className="font-semibold text-lg projector-text">{option.text}</p>
+                        <span className="text-sm text-muted-foreground">{option.percentage}%</span>
+                    </div>
+
+                    {/* Bar with Count */}
+                    <div className="relative">
+                        {/* Background track */}
+                        <div className="w-full h-16 bg-secondary/50 rounded-lg overflow-hidden border border-white/5">
+                        {/* Animated bar */}
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${option.percentage}%` }}
+                            transition={{ duration: 0.8, ease: 'easeOut' }}
+                            className={`h-full ${BAR_COLORS[index % BAR_COLORS.length]} shadow-lg`}
                         />
-                      </div>
+                            {/* Count displayed on bar (centered in the track) */}
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <AnimatedCounter
+                                value={option.count}
+                                className="text-2xl font-bold text-white drop-shadow-md"
+                            />
+                            </div>
+                        </div>
+                    </div>
                     </motion.div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+                ))}
+                </motion.div>
+            ) : (
+                /* Heatmap Grid Display */
+                <motion.div
+                    key="heatmap-view"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="grid grid-cols-2 lg:grid-cols-3 gap-4"
+                >
+                    {optionCounts.map((option, index) => {
+                        // Calculate intensity based on percentage (min 10% opacity so it's visible)
+                        const intensity = Math.max(0.1, option.percentage / 100);
+                        
+                        return (
+                            <motion.div
+                                key={option.id}
+                                layout
+                                className="relative rounded-xl overflow-hidden aspect-[4/3] border-2 border-white/10 shadow-lg group"
+                            >
+                                {/* Background Color Layer */}
+                                <motion.div
+                                    className="absolute inset-0 bg-primary origin-bottom"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: intensity }}
+                                    transition={{ duration: 0.5 }}
+                                />
+                                
+                                {/* Content */}
+                                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10">
+                                    <h3 className="text-2xl md:text-3xl font-bold mb-2 projector-text drop-shadow-lg">
+                                        {option.text}
+                                    </h3>
+                                    <div className="flex items-center gap-2">
+                                        <AnimatedCounter
+                                            value={option.count}
+                                            className="text-4xl md:text-5xl font-black text-white drop-shadow-xl"
+                                        />
+                                        <span className="text-sm text-white/80 font-medium bg-black/20 px-2 py-0.5 rounded-full">
+                                            {option.percentage}%
+                                        </span>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
+                </motion.div>
+            )}
+        </AnimatePresence>
       </CardContent>
     </Card>
   );

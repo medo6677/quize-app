@@ -17,11 +17,22 @@ export default function EssayQuestion({ question, studentId, onSubmitted }: Essa
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [lastSubmitted, setLastSubmitted] = useState<number>(0);
+  const [rateLimitWarning, setRateLimitWarning] = useState(false);
 
   const handleSubmit = async () => {
     if (!answer.trim()) return;
 
+    // Client-side rate limit check (3 seconds)
+    const now = Date.now();
+    if (now - lastSubmitted < 3000) {
+      setRateLimitWarning(true);
+      setTimeout(() => setRateLimitWarning(false), 3000);
+      return;
+    }
+
     setLoading(true);
+    setRateLimitWarning(false);
 
     try {
       const { error } = await supabase.from('answers').insert({
@@ -31,6 +42,9 @@ export default function EssayQuestion({ question, studentId, onSubmitted }: Essa
       } as any);
 
       if (error) throw error;
+
+      // Update last submitted timestamp
+      setLastSubmitted(Date.now());
 
       // Robust Broadcast: Subscribe -> Wait -> Send -> Unsubscribe
       const channel = supabase.channel(`question-${question.id}`);
@@ -65,6 +79,11 @@ export default function EssayQuestion({ question, studentId, onSubmitted }: Essa
       }, 2000);
     } catch (err) {
       console.error('Error submitting answer:', err);
+      // Determine if it was a rate limit error from DB
+      if (err instanceof Error && err.message.includes('Rate limit exceeded')) {
+          setRateLimitWarning(true);
+          setTimeout(() => setRateLimitWarning(false), 3000);
+      }
       setLoading(false);
     }
   };
@@ -148,6 +167,15 @@ export default function EssayQuestion({ question, studentId, onSubmitted }: Essa
                 'إرسال الإجابة'
               )}
             </Button>
+            {rateLimitWarning && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-2 text-center text-red-500 text-sm font-medium"
+              >
+                يرجى الانتظار بضع ثوانٍ قبل إرسال إجابة أخرى
+              </motion.div>
+            )}
           </motion.div>
         </CardContent>
       </Card>

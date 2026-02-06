@@ -89,6 +89,7 @@ export interface Database {
           student_id: string;
           option_id: string | null;
           text: string | null;
+          is_hidden: boolean;
           created_at: string;
         };
         Insert: {
@@ -97,6 +98,7 @@ export interface Database {
           student_id: string;
           option_id?: string | null;
           text?: string | null;
+          is_hidden?: boolean;
           created_at?: string;
         };
         Update: {
@@ -105,6 +107,7 @@ export interface Database {
           student_id?: string;
           option_id?: string | null;
           text?: string | null;
+          is_hidden?: boolean;
           created_at?: string;
         };
       };
