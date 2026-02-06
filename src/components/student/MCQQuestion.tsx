@@ -45,15 +45,28 @@ export default function MCQQuestion({ question, studentId, onSubmitted }: MCQQue
 
       if (error) throw error;
 
-      // Broadcast the new answer to bypass RLS delays
-      await supabase.channel(`question-${question.id}`).send({
-        type: 'broadcast',
-        event: 'new-answer',
-        payload: {
-          question_id: question.id,
-          option_id: answersToInsert[0].option_id, // For MCQ, we send the first selected option (or handle multi)
-          options: selectedOptions, // Send full selection for robust handling
-        },
+      if (error) throw error;
+
+      // Robust Broadcast: Subscribe -> Wait -> Send -> Unsubscribe
+      const channel = supabase.channel(`question-${question.id}`);
+      
+      channel.subscribe(async (status) => {
+         if (status === 'SUBSCRIBED') {
+            await channel.send({
+              type: 'broadcast',
+              event: 'new-answer',
+              payload: {
+                question_id: question.id,
+                option_id: answersToInsert[0].option_id, // For MCQ, we send the first selected option (or handle multi)
+                options: selectedOptions, // Send full selection for robust handling
+              },
+            });
+            
+            // Allow a small buffer for transmission before cleanup
+            setTimeout(() => {
+               supabase.removeChannel(channel);
+            }, 1000);
+         }
       });
 
       setSubmitted(true);

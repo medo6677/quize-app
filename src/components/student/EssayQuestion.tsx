@@ -32,16 +32,29 @@ export default function EssayQuestion({ question, studentId, onSubmitted }: Essa
 
       if (error) throw error;
 
-      // Broadcast the new answer to bypass RLS delays
-      await supabase.channel(`question-${question.id}`).send({
-        type: 'broadcast',
-        event: 'new-answer',
-        payload: {
-          question_id: question.id,
-          student_id: studentId,
-          text: answer.trim(),
-          created_at: new Date().toISOString(), // Simulate created_at for sorting
-        },
+      if (error) throw error;
+
+      // Robust Broadcast: Subscribe -> Wait -> Send -> Unsubscribe
+      const channel = supabase.channel(`question-${question.id}`);
+      
+      channel.subscribe(async (status) => {
+         if (status === 'SUBSCRIBED') {
+            await channel.send({
+              type: 'broadcast',
+              event: 'new-answer',
+              payload: {
+                question_id: question.id,
+                student_id: studentId,
+                text: answer.trim(),
+                created_at: new Date().toISOString(),
+              },
+            });
+            
+            // Allow a small buffer for transmission before cleanup
+            setTimeout(() => {
+               supabase.removeChannel(channel);
+            }, 1000);
+         }
       });
 
       setSubmitted(true);
