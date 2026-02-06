@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
+// General Pages
+import LandingPage from './pages/LandingPage';
+
 // Student Pages
 import JoinPage from './pages/student/Join';
 import SessionPage from './pages/student/Session';
@@ -13,8 +16,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Default redirect */}
-        <Route path="/" element={<Navigate to="/join" replace />} />
+        {/* Landing Page */}
+        <Route path="/" element={<LandingPage />} />
         
         {/* Student Routes */}
         <Route path="/join" element={<JoinPage />} />
@@ -26,7 +29,7 @@ export default function App() {
         <Route path="/teacher/session/:id" element={<SessionViewPage />} />
         
         {/* 404 */}
-        <Route path="*" element={<Navigate to="/join" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
