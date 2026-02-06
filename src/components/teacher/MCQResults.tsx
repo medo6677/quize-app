@@ -33,9 +33,8 @@ export default function MCQResults({ question }: MCQResultsProps) {
   useEffect(() => {
     loadAnswers();
 
-    // Unique channel for this component instance to avoid conflicts
-    // between Normal View and Projector Mode instances
-    const channelId = `mcq-answers-${question.id}-${Math.random().toString(36).substr(2, 9)}`;
+    // Must match the channel name the student is broadcasting to
+    const channelId = `question-${question.id}`;
 
     const subscription = supabase
       .channel(channelId)

@@ -24,8 +24,8 @@ export default function EssayResults({ question }: EssayResultsProps) {
 
     loadAnswers();
 
-    // Unique channel ID to prevent collision between Dashboard view and Projector view
-    const channelId = `essay-answers-${question.id}-${Math.random().toString(36).substr(2, 9)}`;
+    // Must match the channel name the student is broadcasting to
+    const channelId = `question-${question.id}`;
 
     const subscription = supabase
       .channel(channelId)
