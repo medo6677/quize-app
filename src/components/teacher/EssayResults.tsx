@@ -34,9 +34,27 @@ export default function EssayResults({ question }: EssayResultsProps) {
           filter: `question_id=eq.${question.id}`,
         },
         (payload) => {
-          // Add new answer to the list
           const newAnswer = payload.new as Answer;
-          loadAnswers(); // Reload to properly calculate isLatest
+          
+          setTotalAnswers(prev => prev + 1);
+
+          setAnswers(prev => {
+            // 1. Add new answer to the list
+            // 2. Mark this student's previous answers as not latest
+            const updatedAnswers = [
+              { ...newAnswer, isLatest: true },
+              ...prev.map(a => 
+                a.student_id === newAnswer.student_id ? { ...a, isLatest: false } : a
+              )
+            ];
+
+            // 3. Sort: Latest answers first, then by date
+            return updatedAnswers.sort((a, b) => {
+               if (a.isLatest && !b.isLatest) return -1;
+               if (!a.isLatest && b.isLatest) return 1;
+               return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+            });
+          });
         }
       )
       .subscribe();

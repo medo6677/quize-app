@@ -31,9 +31,12 @@ export default function DashboardPage() {
 
   const loadSessions = async () => {
     try {
+      const user = await getCurrentUser();
+      
       const { data, error } = await supabase
         .from('sessions')
         .select('*')
+        .eq('teacher_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

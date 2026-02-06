@@ -44,8 +44,30 @@ export default function MCQResults({ question }: MCQResultsProps) {
           table: 'answers',
           filter: `question_id=eq.${question.id}`,
         },
-        () => {
-          loadAnswers();
+        (payload) => {
+          const newAnswer = payload.new as any; // Using any to avoid type strictness issues with generated types if needed
+
+          // Optimistically update state to avoid cache issues
+          setTotalAnswers((prev) => {
+             const newTotal = prev + 1;
+             
+             // Update option counts and percentages
+             setOptionCounts((prevCounts) => {
+                return prevCounts.map(opt => {
+                   let newCount = opt.count;
+                   if (opt.id === newAnswer.option_id) {
+                      newCount++;
+                   }
+                   return {
+                      ...opt,
+                      count: newCount,
+                      percentage: Math.round((newCount / newTotal) * 100)
+                   };
+                });
+             });
+
+             return newTotal;
+          });
         }
       )
       .subscribe();
