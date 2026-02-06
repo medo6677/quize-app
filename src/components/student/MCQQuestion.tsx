@@ -45,6 +45,17 @@ export default function MCQQuestion({ question, studentId, onSubmitted }: MCQQue
 
       if (error) throw error;
 
+      // Broadcast the new answer to bypass RLS delays
+      await supabase.channel(`question-${question.id}`).send({
+        type: 'broadcast',
+        event: 'new-answer',
+        payload: {
+          question_id: question.id,
+          option_id: answersToInsert[0].option_id, // For MCQ, we send the first selected option (or handle multi)
+          options: selectedOptions, // Send full selection for robust handling
+        },
+      });
+
       setSubmitted(true);
       setTimeout(() => {
         onSubmitted();

@@ -32,6 +32,18 @@ export default function EssayQuestion({ question, studentId, onSubmitted }: Essa
 
       if (error) throw error;
 
+      // Broadcast the new answer to bypass RLS delays
+      await supabase.channel(`question-${question.id}`).send({
+        type: 'broadcast',
+        event: 'new-answer',
+        payload: {
+          question_id: question.id,
+          student_id: studentId,
+          text: answer.trim(),
+          created_at: new Date().toISOString(), // Simulate created_at for sorting
+        },
+      });
+
       setSubmitted(true);
       setAnswer('');
       
