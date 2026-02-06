@@ -160,53 +160,75 @@ export default function SessionViewPage() {
   }
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen p-3 sm:p-8">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-0"
+          className="flex flex-col gap-6"
         >
-          <div className="flex items-center gap-4 w-full lg:w-auto">
-            <Button onClick={() => navigate('/teacher/dashboard')} variant="outline" size="icon" className="shrink-0">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold projector-text truncate">الجلسة: {session.code}</h1>
-                <div className="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full flex items-center gap-2 shrink-0">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                  </span>
-                  <Users className="h-4 w-4 text-green-600" />
-                  <span className="font-bold text-green-700 text-sm">
-                    {onlineCount} <span className="hidden sm:inline">متصل</span>
+          {/* Top Row: Back + Title + Badge */}
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+            <div className="flex items-start gap-3 w-full sm:w-auto">
+              <Button onClick={() => navigate('/teacher/dashboard')} variant="outline" size="icon" className="shrink-0 mt-1">
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div className="flex-1 min-w-0 space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-2xl sm:text-4xl font-bold projector-text leading-tight">
+                    الجلسة: {session.code}
+                  </h1>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-2 text-sm sm:text-base text-muted-foreground">
+                   <div className="px-2 py-0.5 bg-green-500/10 border border-green-500/20 rounded-full flex items-center gap-1.5 shrink-0">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                    </span>
+                    <span className="font-bold text-green-700 text-xs sm:text-sm">
+                      {onlineCount} <span className="hidden sm:inline">متصل</span>
+                    </span>
+                  </div>
+                  <span>•</span>
+                  <span>
+                    انضمام: <span className="font-mono font-bold text-primary mx-1">{session.code}</span>
                   </span>
                 </div>
               </div>
-              <p className="text-muted-foreground mt-1 text-sm sm:text-lg truncate">
-                انضمام: <span className="font-mono font-bold text-primary text-base sm:text-xl mx-2 ">{session.code}</span> /join
-              </p>
+            </div>
+
+            {/* Default Controls Position (Hidden on mobile, shown on tablet+) */}
+            <div className="hidden sm:flex flex-wrap gap-2 justify-end">
+              <Button onClick={() => setShowProjectorMode(true)} variant="outline" size="lg">
+                <Maximize2 className="ml-2 h-5 w-5" />
+                عرض العرض
+              </Button>
+              <Button onClick={() => setShowQRModal(true)} variant="outline" size="lg">
+                <QrCode className="ml-2 h-5 w-5" />
+                عرض الباركود
+              </Button>
+              <Button onClick={() => setShowCreateModal(true)} size="lg">
+                <Plus className="ml-2 h-5 w-5" />
+                إنشاء سؤال
+              </Button>
             </div>
           </div>
           
-          <div className="flex flex-wrap gap-2 w-full lg:w-auto justify-end">
-            <Button onClick={() => setShowProjectorMode(true)} variant="outline" size="lg" className="text-base sm:text-lg flex-1 sm:flex-none">
-              <Maximize2 className="ml-2 h-5 w-5" />
-              <span className="hidden sm:inline">عرض العرض</span>
-              <span className="inline sm:hidden">عرض</span>
+          {/* Mobile Controls Grid (Only visible on mobile) */}
+          <div className="grid grid-cols-2 gap-2 sm:hidden">
+             <Button onClick={() => setShowProjectorMode(true)} variant="outline" className="h-auto py-3 px-2 flex-col gap-1 h-20">
+              <Maximize2 className="h-6 w-6 mb-1" />
+              <span className="text-xs">وضع العرض</span>
             </Button>
-            <Button onClick={() => setShowQRModal(true)} variant="outline" size="lg" className="text-base sm:text-lg flex-1 sm:flex-none">
-              <QrCode className="ml-2 h-5 w-5" />
-              <span className="hidden sm:inline">عرض الباركود</span>
-              <span className="inline sm:hidden">باركود</span>
+            <Button onClick={() => setShowQRModal(true)} variant="outline" className="h-auto py-3 px-2 flex-col gap-1 h-20">
+              <QrCode className="h-6 w-6 mb-1" />
+              <span className="text-xs">الباركود</span>
             </Button>
-            <Button onClick={() => setShowCreateModal(true)} size="lg" className="text-base sm:text-lg flex-1 sm:flex-none">
-              <Plus className="ml-2 h-5 w-5" />
-              <span className="hidden sm:inline">إنشاء سؤال</span>
-              <span className="inline sm:hidden">سؤال</span>
+            <Button onClick={() => setShowCreateModal(true)} className="col-span-2 h-auto py-3 px-2 flex-row gap-2 h-14 text-base font-bold">
+              <Plus className="h-5 w-5" />
+              إنشاء سؤال جديد
             </Button>
           </div>
         </motion.div>

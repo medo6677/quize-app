@@ -217,37 +217,39 @@ export default function EssayResults({ question }: EssayResultsProps) {
 
   return (
     <Card className="glass-effect projector-shadow">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <div className="space-y-1">
-            <CardTitle className="text-3xl font-bold projector-text flex items-center gap-3">
-            <MessageSquare className="h-8 w-8" />
-            {question.text}
+      <CardHeader className="flex flex-col-reverse sm:flex-row items-stretch sm:items-start justify-between gap-4 pb-2">
+        <div className="space-y-2 text-center sm:text-right flex-1 min-w-0">
+            <CardTitle className="text-2xl sm:text-3xl font-bold projector-text flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-3 leading-tight" dir="auto">
+            <MessageSquare className="h-6 w-6 sm:h-8 sm:w-8 shrink-0 text-muted-foreground sm:mt-1" />
+            <span className="break-words">{question.text}</span>
             </CardTitle>
-            <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">إجمالي الإجابات:</span>
-            <AnimatedCounter value={totalAnswers} className="text-2xl font-bold text-primary" />
+            <div className="flex items-center justify-center sm:justify-start gap-2">
+            <span className="text-xs sm:text-sm text-muted-foreground">إجمالي الإجابات:</span>
+            <AnimatedCounter value={totalAnswers} className="text-xl sm:text-2xl font-bold text-primary" />
             </div>
         </div>
         
-        <div className="flex items-center gap-1 bg-secondary/50 p-1 rounded-lg">
-             <Button
-                variant={filterMode === 'latest' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setFilterMode('latest')}
-                className="gap-2"
-             >
-                <LayoutList className="h-4 w-4" />
-                الأحدث فقط
-             </Button>
-             <Button
-                variant={filterMode === 'all' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setFilterMode('all')}
-                className="gap-2"
-             >
-                <Layers className="h-4 w-4" />
-                الكل
-             </Button>
+        <div className="flex justify-center sm:justify-end">
+          <div className="flex items-center gap-1 bg-secondary/50 p-1 rounded-lg w-full sm:w-auto">
+              <Button
+                  variant={filterMode === 'latest' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setFilterMode('latest')}
+                  className="gap-2 flex-1 sm:flex-none h-8 sm:h-9"
+              >
+                  <LayoutList className="h-4 w-4" />
+                  <span className="text-xs sm:text-sm">الأحديث</span>
+              </Button>
+              <Button
+                  variant={filterMode === 'all' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setFilterMode('all')}
+                  className="gap-2 flex-1 sm:flex-none h-8 sm:h-9"
+              >
+                  <Layers className="h-4 w-4" />
+                  <span className="text-xs sm:text-sm">الكل</span>
+              </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
