@@ -32,8 +32,6 @@ export default function EssayQuestion({ question, studentId, onSubmitted }: Essa
 
       if (error) throw error;
 
-      if (error) throw error;
-
       // Robust Broadcast: Subscribe -> Wait -> Send -> Unsubscribe
       const channel = supabase.channel(`question-${question.id}`);
       
@@ -62,6 +60,7 @@ export default function EssayQuestion({ question, studentId, onSubmitted }: Essa
       
       setTimeout(() => {
         setSubmitted(false);
+        setLoading(false);
         onSubmitted();
       }, 2000);
     } catch (err) {
